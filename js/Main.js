@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 	document.getElementById("deleteParking").addEventListener("click", () => {
-		deleteCurrParking();
+		deleteCurrParking(currParkingId);
 	});
 })
 
@@ -43,7 +43,7 @@ const parkingClick = (e) => {
  */
 const deleteCurrParking = (id) => {
 	//TODO
-	fetch(url + "?id=" + id, { method: 'delete' })
+	fetch(url + "/" + id, { method: 'delete' })
 		.then((response) => {
 			console.log('we got a delete');
 		})
@@ -121,10 +121,11 @@ const loadParkings = () => {
  */
 const loadSpecificParking = (id) => {
 	// TODO
-	fetch(url + "?id=" + id, { method: 'get' })
+	fetch(url + "/" + id, { method: 'get' })
 		.then((response) => response.json())
 		.then((data) => {
 			console.log('your parking info has been loaded from server');
+			console.log
 			showParkingDetails(data);
 		})
 		.catch((err) => {
