@@ -41,49 +41,67 @@ const parkingClick = (e) => {
 /**
  * Mark parking as taken
  */
-const deleteCurrParking = (id) => {
-	//TODO
-	fetch(url + "/" + id, { method: 'delete' })
-		.then((response) => {
-			console.log('we got a delete');
-		})
-		.catch((err) => {
-			const error = new Error("something went wrong with the delate")
-			error.code = "404"
-			throw error;
-		});
+const deleteCurrParking = async (id) => {
+
+	const response = await fetch(
+		url + "/" + id,
+		{
+			method: 'delete'
+		}
+	);
+	try {
+		const data = await response.json();
+		console.log(data);
+	}
+	catch (err) {
+		console.error(err);
+	}
+
+	// //TODO
+	// fetch(url + "/" + id, { method: 'delete' })
+	// 	.then((response) => {
+	// 		console.log('we got a delete');
+	// 	})
+	// 	.catch((err) => {
+	// 		const error = new Error("something went wrong with the delate")
+	// 		error.code = "404"
+	// 		throw error;
+	// 	});
 }
 
 /**
  * Add new parking
  */
-const addParking = () => {
+const addParking = async () => {
 	// Getting the coords
-	const coords = document.getElementById("newParkingCoord").getAttribute("value").replace("(", "").replace(")", "").split(",");
-	const address = document.getElementById("newParkingAddress").value;
+	try {
+		const coords = document.getElementById("newParkingCoord").getAttribute("value").replace("(", "").replace(")", "").split(",");
+		const address = document.getElementById("newParkingAddress").value;
 
+		var raw = JSON.stringify({
+			x_coord: coords[0],
+			y_coord: coords[1],
+			address: address
+		});
 
+		const response = await fetch(
+			url,
+			{
+				method: 'post', headers: { "Content-Type": "application/json" }, body: raw
+			}
+		);
 
-	var myHeaders = new Headers();
-	myHeaders.append("Content-Type", "application/json");
+		const data = await response.json();
+		console.log(data);
+	}
+	catch (err) {
+		console.error(err);
+	}
 
-	var raw = JSON.stringify({
-		x_coord: coords[0],
-		y_coord: coords[1],
-		address: address
-	});
-
-	var requestOptions = {
-		method: 'POST',
-		headers: myHeaders,
-		body: raw,
-		redirect: 'follow'
-	};
-
-	fetch(url, { method: 'post', headers: { "Content-Type": "application/json" }, body: raw })
-		.then(response => response.text())
-		.then(result => refreshParkings())
-		.catch(error => console.log('error', error));
+	// fetch(url, { method: 'post', headers: { "Content-Type": "application/json" }, body: raw })
+	// 	.then(response => response.text())
+	// 	.then(result => refreshParkings())
+	// 	.catch(error => console.log('error', error));
 
 }
 
@@ -99,40 +117,44 @@ const refreshParkings = () => {
 /**
  * load all the parking from the server
  */
-const loadParkings = () => {
-	// TODO
-	fetch(url, { method: 'get' })
-		.then((response) => response.json())
-		.then((data) => {
-			console.log('parkings info has been loaded from server');
-			console.log(1);
-			drawParkings(data);
-		})
-		.catch((err) => {
-			const error = new Error("something went wrong with the load " + err)
-			error.code = "404"
-			throw error;
-		});
+const loadParkings = async () => {
+
+
+	const res = await fetch(url, { method: 'get', headers: { "Content-Type": "application/json" } })
+	//console.log(res);
+	const data = await res.json();
+	//console.log("data" + data);
+	drawParkings(data);
 }
 
 /**
  * load specific parking's details
  * @param {int} id id of the parking to get details on
  */
-const loadSpecificParking = (id) => {
-	// TODO
-	fetch(url + "/" + id, { method: 'get' })
-		.then((response) => response.json())
-		.then((data) => {
-			console.log('your parking info has been loaded from server');
-			console.log
-			showParkingDetails(data);
-		})
-		.catch((err) => {
-			const error = new Error("something went wrong with the load of this parking")
-			error.code = "404"
-			throw error;
-		});
+const loadSpecificParking = async (id) => {
+
+	const res = await fetch(url + "/" + id, { method: 'get', headers: { "Content-Type": "application/json" } })
+	console.log(res);
+	const data = await res.json();
+	console.log("data" + data);
+	showParkingDetails(data);
+
+
+	// try {
+	// 	const response = await fetch(
+	// 		url + "/" + id,
+	// 		{
+	// 			method: 'get'
+	// 		}
+	// 	);
+
+	// 	const data = await response.json();
+	// 	console.log(data);
+	// 	drawParkings(data);
+	// }
+	// catch (err) {
+	// 	console.error(err);
+	// }
 }
 
 /**
@@ -152,6 +174,7 @@ const showParkingDetails = (parking) => {
  * @param {Array} arrParks The parkings to draw
  */
 const drawParkings = (arrParks) => {
+	//console.log(arrParks)
 	arrParks.forEach((currParking) => {
 		parkingDOM = document.createElementNS("http://www.w3.org/2000/svg", "image");
 		parkingDOM.setAttributeNS("http://www.w3.org/1999/xlink", "href", "/images/ParkingMaterial.png");

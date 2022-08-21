@@ -1,6 +1,6 @@
 const express = require("express");
 const shortid = require("shortid");
-const { getParkings, updateParkings } = require("./utils");
+const { getBySomething, createParking, delate, getAll } = require("./utils");
 const PORT = 3000;
 const cors = require("cors");
 const app = express();
@@ -19,9 +19,15 @@ app.use(function (req, res, next) {
 //Endpoints
 
 app.get("/api/parking/:id", (req, res) => {
+  // const parkingId = req.params.id;
+  // const parkings = getAll();
+  // requestedParking = parkings.find((parking) => parking.id === parkingId);
+
+  // 
+
+  debugger
   const parkingId = req.params.id;
-  const parkings = getParkings();
-  requestedParking = parkings.find((parking) => parking.id === parkingId);
+  const requestedParking = getBySomething('*', 'id=', parkingId);
 
   if (!requestedParking) {
     res.status(404).send(`parking ${parkingId} not found`);
@@ -29,20 +35,20 @@ app.get("/api/parking/:id", (req, res) => {
     res.send(requestedParking);
   }
 });
-app.get("/api/parking", (req, res) => {
-  const parkings = getParkings();
 
-  if (!parkings || !parkings.length) {
-    res.status(404).send(`Parkings do not exist`);
+app.get("/api/parking", async (req, res) => {
+  const parkings = await getAll();
+  console.log(parkings.rows);
+  if (!parkings || !parkings.rows) {
+    console.error(`there are ziro parkings`);
   } else {
-    res.send(parkings);
+    res.send(parkings.rows);
   }
 });
 
 //  Create
 app.post("/api/parking", (req, res) => {
-  debugger
-  const parkings = getParkings();
+  //const parkings = getParkings();
   console.log(req.body);
   const newParking = {
     id: shortid.generate(),
@@ -50,11 +56,11 @@ app.post("/api/parking", (req, res) => {
     y_coord: req.body.y_coord,
     address: req.body.address,
     time: Date.now()
-  };
+  }
   console.log(newParking);
 
 
-  parkings.push(newParking);
+  //parkings.push(newParking);
   updateParkings(parkings);
   res.send(newParking);
 });
