@@ -57,6 +57,7 @@ const deleteCurrParking = async (id) => {
 		console.error(err);
 	}
 
+
 	// //TODO
 	// fetch(url + "/" + id, { method: 'delete' })
 	// 	.then((response) => {
@@ -98,6 +99,7 @@ const addParking = async () => {
 		console.error(err);
 	}
 
+
 	// fetch(url, { method: 'post', headers: { "Content-Type": "application/json" }, body: raw })
 	// 	.then(response => response.text())
 	// 	.then(result => refreshParkings())
@@ -136,7 +138,7 @@ const loadSpecificParking = async (id) => {
 	const res = await fetch(url + "/" + id, { method: 'get', headers: { "Content-Type": "application/json" } })
 	console.log(res);
 	const data = await res.json();
-	console.log("data" + data);
+	console.log("data", data);
 	showParkingDetails(data);
 
 
@@ -161,7 +163,8 @@ const loadSpecificParking = async (id) => {
  * Display a panel with the specific panel details
  * @param {object} parking the parking recived from the server to show
  */
-const showParkingDetails = (parking) => {
+const showParkingDetails = async (parking) => {
+	currParking = JSON.stringify(parking);
 	document.getElementById("exist_address").innerHTML = parking.address;
 	document.getElementById("exist_x").innerHTML = parking.x_coord;
 	document.getElementById("exist_y").innerHTML = parking.y_coord;

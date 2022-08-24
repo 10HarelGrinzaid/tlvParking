@@ -1,6 +1,5 @@
 const express = require("express");
-const shortid = require("shortid");
-const { getBySomething, createParking, delate, getAll } = require("./utils");
+const { getById, create, remove, getAll } = require("./utils");
 const PORT = 3000;
 const cors = require("cors");
 const app = express();
@@ -18,21 +17,22 @@ app.use(function (req, res, next) {
 
 //Endpoints
 
-app.get("/api/parking/:id", (req, res) => {
+app.get("/api/parking/:id", async (req, res) => {
   // const parkingId = req.params.id;
   // const parkings = getAll();
   // requestedParking = parkings.find((parking) => parking.id === parkingId);
 
   // 
 
-  debugger
   const parkingId = req.params.id;
-  const requestedParking = getBySomething('*', 'id=', parkingId);
+
+  const requestedParking = await getById(parkingId);
+  console.log(requestedParking.rows);
 
   if (!requestedParking) {
-    res.status(404).send(`parking ${parkingId} not found`);
+    console.error(`parking ${parkingId} not found`);
   } else {
-    res.send(requestedParking);
+    res.send(requestedParking.rows[0]);
   }
 });
 
@@ -47,21 +47,25 @@ app.get("/api/parking", async (req, res) => {
 });
 
 //  Create
-app.post("/api/parking", (req, res) => {
+app.post("/api/parking", async (req, res) => {
   //const parkings = getParkings();
-  console.log(req.body);
+  console.log("req body ", req.body);
+  console.log("x_coord ", req.body.x_coord);
+  console.log("y_coord ", req.body.y_coord);
+  console.log("address ", req.body.address);
+
   const newParking = {
-    id: shortid.generate(),
+    id: Math.floor(Math.random() * 100000000),
     x_coord: req.body.x_coord,
     y_coord: req.body.y_coord,
     address: req.body.address,
-    time: Date.now()
-  }
-  console.log(newParking);
+    time: Date.now(),
+  };
+  console.log("new parking ", newParking);
 
 
   //parkings.push(newParking);
-  updateParkings(parkings);
+  create(newParking);
   res.send(newParking);
 });
 
@@ -76,28 +80,10 @@ app.put("/api/parking", (req, res) => {
 
 
 //Delete
-app.delete("/api/parking/:id", (req, res) => {
+app.delete("/api/parking/:id", async (req, res) => {
+
   const parkingId = req.params.id;
-  const parkings = getParkings();
-
-  //findIndex+splice
-  const indexToRemove = parkings.findIndex((parking) => parking.id === parkingId);
-  if (indexToRemove === -1) {
-    res.status(404).send("Parking not found. Deletion failed.");
-  } else {
-    parkings.splice(indexToRemove, 1);
-    updateParkings(parkings);
-    res.send(`Parking ${parkingId} has been deleted`);
-  }
-  //filter
-
-  const updatedParkings = parkings.filter((parking) => parking.id !== parkingId);
-  if (updateParkings.length === parkings.length) {
-    res.status(404).send("Parking not found. Deletion failed.");
-  } else {
-    updateParkings(updatedParkings);
-    res.send(`Parking ${parkingId} has been deleted`);
-  }
+  await remove(parkingId);
 });
 
 app.listen(PORT, function (err) {
